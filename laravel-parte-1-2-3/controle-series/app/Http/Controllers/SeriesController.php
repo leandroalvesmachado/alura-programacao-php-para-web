@@ -15,6 +15,8 @@ use App\Http\Requests\SeriesFormRequest;
 use App\Services\CriadorDeSerie;
 use App\Services\RemovedorDeSerie;
 
+use App\Events\NovaSerie;
+
 class SeriesController extends Controller
 {
 
@@ -55,31 +57,59 @@ class SeriesController extends Controller
      */
     public function store(SeriesFormRequest $request, CriadorDeSerie $criadorDeSerie)
     {
+        // salva o upload
+        $capa = null;
+        if ($request->hasFile('capa')) {
+            $capa = $request->file('capa')->store('serie');
+        }
+
         $serie = $criadorDeSerie->criarSerie(
+            $request->nome,
+            $request->qtd_temporadas,
+            $request->ep_por_temporada,
+            $capa
+        );
+
+        // executando evento
+        $eventoNovaSerie = new NovaSerie(
             $request->nome,
             $request->qtd_temporadas,
             $request->ep_por_temporada
         );
 
+        event($eventoNovaSerie);
+
+        // jogando codigo para o listener
         // usuario logado sempre vem no request
         // $user = $request->user();
-        $users = User::all();
+        // $users = User::all();
 
-        foreach ($users as $user) {
-            $email = new \App\Mail\NovaSerie(
-                $request->nome,
-                $request->qtd_temporadas,
-                $request->ep_por_temporada
-            );
+        // foreach ($users as $indice => $user) {
 
-            $email->subject = 'Nova Série Adicionada';
+        //     $multiplicador = $indice + 1;
 
-            Mail::to($user)->send($email);
+        //     $email = new \App\Mail\NovaSerie(
+        //         $request->nome,
+        //         $request->qtd_temporadas,
+        //         $request->ep_por_temporada
+        //     );
 
-            // envia 1 email a cada 5 segundos
-            // nao viavel
-            // sleep(5);
-        }
+        //     $email->subject = 'Nova Série Adicionada';
+
+        //     // enviando email sem fila
+        //     // Mail::to($user)->send($email);
+
+        //     // envia 1 email a cada 5 segundos
+        //     // nao viavel
+        //     // sleep(5);
+
+        //     // enviando email com fila
+        //     // Mail::to($user)->queue($email);
+
+        //     // enviando email com delay
+        //     $delay = now()->addSecond($multiplicador * 5);
+        //     Mail::to($user)->later($delay, $email);
+        // }
 
         $request->session()->flash(
             'mensagem',

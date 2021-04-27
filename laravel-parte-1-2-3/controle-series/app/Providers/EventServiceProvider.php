@@ -7,6 +7,12 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+use App\Events\NovaSerie;
+
+use App\Listeners\EnviarEmailNovaSerieCadastrada;
+use App\Listeners\LogNovaSerieCadastrada;
+
+
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -18,6 +24,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        NovaSerie::class => [
+            // pode ter mais listeners (ouvintes)
+            EnviarEmailNovaSerieCadastrada::class,
+            LogNovaSerieCadastrada::class
+        ]
     ];
 
     /**

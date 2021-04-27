@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 class Serie extends Model
 {
@@ -13,7 +14,18 @@ class Serie extends Model
     public $timestamps = true;
 
     // quando se usa o create , se faz necessario
-    protected $fillable = ['nome'];
+    protected $fillable = ['nome', 'capa'];
+
+    public function getCapaUrlAttribute()
+    {
+        // if ($this->capa) {
+        //     return asset('storage/'.$this->capa);
+        // }
+
+        // return asset('storage/serie/sem-imagem.jpg');
+
+        return $this->capa ? asset('storage/'.$this->capa) : asset('storage/serie/sem-imagem.jpg');
+    }
 
     public function temporadas()
     {
