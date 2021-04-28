@@ -8,10 +8,11 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 use App\Events\NovaSerie;
+use App\Events\SerieApagada;
 
 use App\Listeners\EnviarEmailNovaSerieCadastrada;
 use App\Listeners\LogNovaSerieCadastrada;
-
+use App\Listeners\ExcluirCapaSerie;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -27,8 +28,12 @@ class EventServiceProvider extends ServiceProvider
         NovaSerie::class => [
             // pode ter mais listeners (ouvintes)
             EnviarEmailNovaSerieCadastrada::class,
-            LogNovaSerieCadastrada::class
-        ]
+            LogNovaSerieCadastrada::class,
+
+        ],
+        // SerieApagada::class => [
+        //     ExcluirCapaSerie::class
+        // ]
     ];
 
     /**

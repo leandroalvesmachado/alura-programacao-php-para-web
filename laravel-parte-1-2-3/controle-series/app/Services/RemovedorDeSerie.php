@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\DB;
 // importando mais de um model
 use App\{Serie, Temporada, Episodio};
 
+use Illuminate\Support\Facades\Storage;
+
+use App\Events\SerieApagada;
+
+use App\Jobs\ExcluirCapaSerie;
+
 class RemovedorDeSerie
 {
     // : string informa ao metodo que ele retorna uma string
@@ -16,9 +22,18 @@ class RemovedorDeSerie
 
         DB::transaction(function () use ($serieId, &$nomeSerie) {
             $serie = Serie::find($serieId);
+
+            $serieObj = (object) $serie->toArray();
             $nomeSerie = $serie->nome;
+            
             $this->removerTemporadas($serie);
             $serie->delete();
+
+            $evento = new SerieApagada($serieObj);
+            event($evento);
+            
+            // job
+            ExcluirCapaSerie::dispatch($serieObj);
         });
 
         return $nomeSerie;
